@@ -13,7 +13,7 @@ RUN apt-get update && \
 
 # Install JupyterLab & AWS CLI
 RUN python3 -m pip install jupyterlab==4.1.0 \
-                           boto3==1.34.38 \
+                           sagemaker==2.207.1 \
                            https://github.com/aws/aws-cli/archive/v2.tar.gz
 
 # Docker - https://docs.aws.amazon.com/sagemaker/latest/dg/studio-updated-local.html
