@@ -30,9 +30,9 @@ RUN echo \
   tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 # Install docker (Studio only supports Docker version 20.10.X.)
-RUN apt-get update && \
-    apt-get install -y docker-ce=5:20.10.* docker-ce-cli=5:20.10.* containerd.io docker-buildx-plugin docker-compose-plugin && \
-    rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && \
+#    apt-get install -y docker-ce=5:20.10.* docker-ce-cli=5:20.10.* containerd.io docker-buildx-plugin docker-compose-plugin && \
+#    rm -rf /var/lib/apt/lists/*
 
 USER $NB_USER
 
