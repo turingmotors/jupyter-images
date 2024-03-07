@@ -1,0 +1,6 @@
+black==24.2.0
+isort==5.13.2
+jupyterlab-code-formatter==2.2.1
+poetry==1.8.2
+sagemaker==2.212.0
+sagemaker[local]
