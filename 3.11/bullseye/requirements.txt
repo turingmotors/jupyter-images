@@ -1,0 +1,9 @@
+black==24.2.0
+isort==5.13.2
+jupyterlab==4.1.5
+jupyterlab-code-formatter==2.2.1
+opencv-python==4.9.0.80
+poetry==1.8.2
+sagemaker==2.213.0
+sagemaker[local]
+https://github.com/aws/aws-cli/archive/v2.tar.gz
