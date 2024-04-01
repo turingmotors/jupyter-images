@@ -6,4 +6,7 @@ opencv-python==4.9.0.80
 poetry==1.8.2
 sagemaker==2.213.0
 sagemaker[local]
+# AWS CLI v2
 https://github.com/aws/aws-cli/archive/v2.tar.gz
+# auto-stop idle
+https://github.com/aws-samples/sagemaker-studio-apps-lifecycle-config-examples/releases/download/v0.2.0/sagemaker_studio_jlab_auto_stop_idle-0.2.0.tar.gz

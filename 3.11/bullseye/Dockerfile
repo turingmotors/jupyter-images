@@ -36,15 +36,15 @@ ARG DEBIAN_FRONTEND=noninteractive
 # Copy ffmpeg
 ARG FFMPEG_DIR
 COPY --from=ffmpeg_builder ${FFMPEG_DIR} ${FFMPEG_DIR}
-ENV LD_LIBRARY_PATH="${FFMPEG_DIR}/lib"
-ENV FFMPEG_BINARY=${FFMPEG_DIR}/bin/ffmpeg
+ENV LD_LIBRARY_PATH="${FFMPEG_DIR}/lib" \
+    FFMPEG_BINARY=${FFMPEG_DIR}/bin/ffmpeg
 
 RUN ln -s ${FFMPEG_DIR}/bin/ffmpeg /usr/local/bin/ffmpeg
 RUN ln -s ${FFMPEG_DIR}/bin/ffprobe /usr/local/bin/ffprobe
 
-ARG NB_USER="sagemaker-user"
-ARG NB_UID=1000
-ARG NB_GID=100
+ARG NB_USER="sagemaker-user" \
+    NB_UID=1000 \
+    NB_GID=100
 
 # Setup the "sagemaker-user" user with root privileges.
 RUN apt-get update && \
@@ -59,22 +59,43 @@ RUN /tmp/docker-cli-install.sh \
     && /tmp/github-cli-install.sh
 
 RUN apt-get update && apt-get install -y \
+      cron \
       libgl1-mesa-dev \
       libx264-dev \
       libx265-dev \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /home/$NB_USER
-
-USER $NB_USER
-
 # Install poetry and dependences
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
-ENV PATH=/home/$NB_USER/.local/bin:$PATH
-ENV SHELL=/bin/bash
+ENV IDLE_TIME_IN_SECONDS=3600 \
+    IGNORE_CONNECTIONS=True \
+    SKIP_TERMINALS=False \
+    SOLUTION_DIR=/var/tmp/auto-stop-idle
 
+ENV JL_HOSTNAME=0.0.0.0 \
+    JL_PORT=8888 \
+    JL_BASE_URL=/jupyterlab/default/ \
+    LOG_FILE=/var/log/apps/app_container.log \
+    STATE_FILE=$SOLUTION_DIR/auto_stop_idle.st
+
+RUN mkdir -p $SOLUTION_DIR \
+    && echo "*/2 * * * * /bin/bash -ic 'python -m sagemaker_studio_jlab_auto_stop_idle.auto_stop_idle \
+    --idle-time $IDLE_TIME_IN_SECONDS \
+    --hostname $JL_HOSTNAME \
+    --port $JL_PORT \
+    --base-url $JL_BASE_URL \
+    --ignore-connections $IGNORE_CONNECTIONS \
+    --skip-terminals $SKIP_TERMINALS \
+    --state-file-path $STATE_FILE >> $LOG_FILE'" | crontab -
+
+WORKDIR /home/$NB_USER
+
+USER $NB_USER
+
+ENV PATH=/home/$NB_USER/.local/bin:$PATH \
+    SHELL=/bin/bash
 
 ENTRYPOINT ["jupyter-lab"]
 CMD ["--ServerApp.ip=0.0.0.0", "--ServerApp.port=8888", "--ServerApp.allow_origin=*", "--ServerApp.token=''", "--ServerApp.base_url=/jupyterlab/default"]
